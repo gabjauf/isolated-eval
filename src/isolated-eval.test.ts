@@ -58,7 +58,7 @@ describe("isolatedEval", () => {
   });
 
   test('should not be able to inject __proto__', async function () {
-    const code = '{ pid: "pid", __proto__: { valueof: () => { return "hacked"}, toString: () => { return "hacked"} } }';
+    const code = '{ pid: "pid", __proto__: { valueOf: () => { return "hacked"}, toString: () => { return "hacked"} } }';
     const evaluated = await isolatedEval(code);
     expect(evaluated).toStrictEqual({ pid: 'pid'});
     expect(evaluated.__proto__).toStrictEqual({});
