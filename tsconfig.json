@@ -12,5 +12,5 @@
 		"outDir": "dist"
 	},
 	"lib": ["ES2021"],
-	"exclude": ["./templates", "./spikes", "./lib", "./out"]
+	"exclude": ["./vitest.config.ts"]
 }
