@@ -57,6 +57,14 @@ describe('isolatedEvalSync', () => {
     expect(evaluated.apple).toBe('APPLE');
   });
 
+  test('should not be able to inject __proto__', function () {
+    const code = '{ pid: "pid", __proto__: { valueof: () => { return "hacked"}, toString: () => { return "hacked"} } }';
+    const evaluated = isolatedEvalSync(code);
+    expect(evaluated).toStrictEqual({ pid: 'pid'});
+    expect(evaluated.__proto__).toStrictEqual({});
+    expect(evaluated.toString()).toBe('[object Object]');
+  });
+
   test('should not have access to Node.js objects (CWE-265)', function () {
     const code = `(function () {
       let ret = hasOwnProperty;
