@@ -1,0 +1,20 @@
+{
+  "name": "isolated-eval",
+  "version": "0.0.1",
+  "description": "Eval js but in an isolated environment",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "test:ci": "vitest --run"
+  },
+  "author": "Gabriel Jauffret",
+  "license": "MIT",
+  "dependencies": {
+    "isolated-vm": "^4.6.0",
+    "vitest": "^0.34.6"
+  },
+  "devDependencies": {
+    "tsx": "^4.1.2",
+    "typescript": "^5.2.2"
+  }
+}
