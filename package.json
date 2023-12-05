@@ -2,7 +2,7 @@
   "name": "isolated-eval",
   "version": "0.0.1",
   "description": "Eval js but in an isolated environment",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "test": "vitest",
