@@ -22,7 +22,8 @@ npm i isolated-eval
 ### Synchronous
 
 ```js
-import { isolatedEvalSync } from 'isolated-eval';
+import { isolatedEvalSync } from 'isolated-eval'; // typescript
+const { isolatedEvalSync } = require('isolated-eval'); // nodejs
 
 const context = { data: 1 }
 
@@ -36,7 +37,8 @@ console.log(evaluated); // 2
 ### Asynchronous
 
 ```js
-import { isolatedEval } from 'isolated-eval';
+import { isolatedEval } from 'isolated-eval'; // typescript
+const { isolatedEval } = require('isolated-eval'); // nodejs
 
 const context = { data: 1 }
 
