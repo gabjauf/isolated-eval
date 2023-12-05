@@ -1,9 +1,12 @@
 import vm from 'isolated-vm';
 import { IsolatedEvalOptions } from './options';
 
-export async function isolatedEval(code: string | String, context: Object = {}, opts: IsolatedEvalOptions = { memoryLimit: 128 }) {
+export async function isolatedEval(code: any, context: Object = {}, opts: IsolatedEvalOptions = { memoryLimit: 128 }) {
   if (code instanceof String) {
     return code.toString();
+  }
+  if (typeof code !== 'string') {
+    return code;
   }
   const isolate = new vm.Isolate({ memoryLimit: opts.memoryLimit });
   const isolatedContext = await isolate.createContext();

@@ -2,12 +2,15 @@ import vm from "isolated-vm";
 import { IsolatedEvalOptions } from "./options";
 
 export function isolatedEvalSync(
-  code: string | String,
+  code: any,
   context: Object = {},
   opts: IsolatedEvalOptions = { memoryLimit: 128 }
 ) {
   if (code instanceof String) {
     return code.toString();
+  }
+  if (typeof code !== 'string') {
+    return code;
   }
   const isolate = new vm.Isolate({ memoryLimit: opts.memoryLimit });
   const isolatedContext = isolate.createContextSync();
