@@ -2,7 +2,7 @@ import vm from "isolated-vm";
 import { IsolatedEvalOptions } from "./options";
 
 export function isolatedEvalSync(
-  code: string,
+  code: string | String,
   context: Object = {},
   opts: IsolatedEvalOptions = { memoryLimit: 128 }
 ) {
@@ -18,7 +18,7 @@ export function isolatedEvalSync(
     });
   }
   try {
-    const res = isolate.compileScriptSync(code);
+    const res = isolate.compileScriptSync(code as string);
     return res.runSync(isolatedContext, { copy: true, timeout: opts.timeout });
   } finally {
     isolatedContext.release();

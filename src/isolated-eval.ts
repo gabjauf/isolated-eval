@@ -1,7 +1,7 @@
 import vm from 'isolated-vm';
 import { IsolatedEvalOptions } from './options';
 
-export async function isolatedEval(code: string, context: Object = {}, opts: IsolatedEvalOptions = { memoryLimit: 128 }) {
+export async function isolatedEval(code: string | String, context: Object = {}, opts: IsolatedEvalOptions = { memoryLimit: 128 }) {
   if (code instanceof String) {
     return code.toString();
   }
@@ -14,7 +14,7 @@ export async function isolatedEval(code: string, context: Object = {}, opts: Iso
     }));
   }
   try {
-    const res = await isolate.compileScript(code);
+    const res = await isolate.compileScript(code as string);
     return await res.run(isolatedContext, { promise: true, copy: true, timeout: opts.timeout });
   } finally {
     isolatedContext.release();
