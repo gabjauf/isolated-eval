@@ -40,6 +40,16 @@ const evaluated = await isolatedEval(
 console.log(evaluated); // 2
 ```
 
+## Security Notice
+
+This module deals with probably the [most sensitive part of javascript](https://javascript.plainenglish.io/javascript-eval-is-it-evil-a8cd935d0daa) because it opens a lot of possibilities. You should always be aware of the risks of using it, past has proven that no use of this kind of module can be made bullet proof for a very long time (see [eval](https://www.npmjs.com/package/eval), [safe-eval](https://www.npmjs.com/package/safe-eval), [safer-eval](https://www.npmjs.com/package/safer-eval), they all have vulnerabilities).
+
+When using this module, you should always make sure to apply the following principles :
+- Never give the user the ability to set the context unless you have very strict validation
+- When giving the user the ability to set the code (for a lambda for example), make sure a timeout is set to mitigate possibilities of DOS
+
+Any security issue should be reported in the security tab, I will do my best to mitigate them as much as possible.
+
 ## Roadmap
 
 - Fuzzy testing
