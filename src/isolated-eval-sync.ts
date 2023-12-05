@@ -4,15 +4,16 @@ import { IsolatedEvalOptions } from "./options";
 export function isolatedEvalSync(
   code: any,
   context: Object = {},
-  opts: IsolatedEvalOptions = { memoryLimit: 128 }
+  opts: IsolatedEvalOptions = { }
 ) {
+  const options = {...opts, memoryLimit: 128 };
   if (code instanceof String) {
     return code.toString();
   }
   if (typeof code !== 'string') {
     return code;
   }
-  const isolate = new vm.Isolate({ memoryLimit: opts.memoryLimit });
+  const isolate = new vm.Isolate({ memoryLimit: options.memoryLimit });
   const isolatedContext = isolate.createContextSync();
   code = `(${clearContext.toString()})(); ${code}`;
   if (context) {
@@ -22,7 +23,7 @@ export function isolatedEvalSync(
   }
   try {
     const res = isolate.compileScriptSync(code as string);
-    return res.runSync(isolatedContext, { copy: true, timeout: opts.timeout });
+    return res.runSync(isolatedContext, { copy: true, timeout: options.timeout });
   } finally {
     isolatedContext.release();
     isolate.dispose();
