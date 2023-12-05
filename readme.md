@@ -10,6 +10,13 @@ This module attempts to mimic the eval function with the following objectives:
 
 These should make the execution much more secure with arbitrary input scripts coming from the user.
 
+## Install
+
+```
+npm i isolated-eval
+```
+
+
 ## Usage
 
 ### Synchronous
