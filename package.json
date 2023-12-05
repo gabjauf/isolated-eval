@@ -1,6 +1,6 @@
 {
   "name": "isolated-eval",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Eval js but in an isolated environment",
   "main": "dist/index.js",
   "scripts": {
