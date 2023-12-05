@@ -21,7 +21,7 @@ describe("isolatedEval", () => {
   });
 
   test("should parse JSON", async function () {
-    const code = '{name: "Borat", hobbies: ["disco dance", "sunbathing"]}';
+    const code = '({name: "Borat", hobbies: ["disco dance", "sunbathing"]})';
     const evaluated = await isolatedEval(code);
     expect(evaluated.name).toBe("Borat");
     expect(evaluated.hobbies[0]).toBe("disco dance");
@@ -45,7 +45,7 @@ describe("isolatedEval", () => {
   });
 
   test("should support context API", async function () {
-    const code = "{pid: pid, apple: a()}";
+    const code = "({pid: pid, apple: a()})";
     const context = {
       pid: process.pid,
       a() {
@@ -57,8 +57,33 @@ describe("isolatedEval", () => {
     expect(evaluated.apple).toBe("APPLE");
   });
 
+  test('should support variable declaration', async function () {
+    const code = 'let hey = { pid: pid, apple: a() }; hey';
+    const context = {
+      pid: process.pid,
+      a() {
+        return 'APPLE';
+      },
+    };
+    const evaluated = await isolatedEval(code, context);
+    expect(evaluated.pid).toBeGreaterThan(0);
+    expect(evaluated.apple).toBe('APPLE');
+  });
+
+  test('should support String instance as input', async function () {
+    const code = new String("2 + 2");
+    const evaluated = await isolatedEval(code);
+    expect(evaluated).toBe("2 + 2");
+  });
+
+  test('should support String instance evaluation work around', async function () {
+    const code = new String("2 + 2");
+    const evaluated = await isolatedEval(String(code));
+    expect(evaluated).toBe(4);
+  });
+
   test('should not be able to inject __proto__', async function () {
-    const code = '{ pid: "pid", __proto__: { valueOf: () => { return "hacked"}, toString: () => { return "hacked"} } }';
+    const code = '({ pid: "pid", __proto__: { valueOf: () => { return "hacked"}, toString: () => { return "hacked"} } })';
     const evaluated = await isolatedEval(code);
     expect(evaluated).toStrictEqual({ pid: 'pid'});
     expect(evaluated.__proto__).toStrictEqual({});

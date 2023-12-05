@@ -2,10 +2,12 @@ import vm from 'isolated-vm';
 import { IsolatedEvalOptions } from './options';
 
 export async function isolatedEval(code: string, context: Object = {}, opts: IsolatedEvalOptions = { memoryLimit: 128 }) {
+  if (code instanceof String) {
+    return code.toString();
+  }
   const isolate = new vm.Isolate({ memoryLimit: opts.memoryLimit });
   const isolatedContext = await isolate.createContext();
-  const resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000);
-  code = `(${clearContext.toString()})(); ${resultKey} = ${code};`;
+  code = `(${clearContext.toString()})(); ${code}`;
   if (context) {
     await Promise.all(Object.keys(context).map(function (key) {
       return isolatedContext.global.set(key, context[key]);

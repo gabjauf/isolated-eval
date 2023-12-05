@@ -6,10 +6,12 @@ export function isolatedEvalSync(
   context: Object = {},
   opts: IsolatedEvalOptions = { memoryLimit: 128 }
 ) {
+  if (code instanceof String) {
+    return code.toString();
+  }
   const isolate = new vm.Isolate({ memoryLimit: opts.memoryLimit });
   const isolatedContext = isolate.createContextSync();
-  const resultKey = "SAFE_EVAL_" + Math.floor(Math.random() * 1000000);
-  code = `(${clearContext.toString()})(); ${resultKey} = ${code}; ${resultKey}`;
+  code = `(${clearContext.toString()})(); ${code}`;
   if (context) {
     Object.keys(context).forEach(function (key) {
       return isolatedContext.global.setSync(key, context[key]);
