@@ -106,15 +106,6 @@ describe("isolatedEval", () => {
     }
   );
 
-  test.concurrent("should not be able to inject __proto__", async function () {
-    const code =
-      '({ pid: "pid", __proto__: { valueOf: () => { return "hacked"}, toString: () => { return "hacked"} } })';
-    const evaluated = await isolatedEval(code);
-    expect(evaluated).toStrictEqual({ pid: "pid" });
-    expect(evaluated.__proto__).toStrictEqual({});
-    expect(evaluated.toString()).toBe("[object Object]");
-  });
-
   test.concurrent(
     "should not have access to Node.js objects (CWE-265)",
     async function () {
@@ -126,24 +117,115 @@ describe("isolatedEval", () => {
     }
   );
 
-  test.concurrent("should not have access to globalThis", async function () {
-    const code = `
-    (function() { 
-        let ret = globalThis;
-        ret.__proto__.polluted = "ret.__proto__.polluted";
-    })()
-    `;
-    await expect(() => isolatedEval(code)).rejects.toThrow();
-  });
+  describe("prototype pollution", () => {
+    test.concurrent(
+      "should not be able to inject __proto__",
+      async function () {
+        const code =
+          '({ pid: "pid", __proto__: { valueOf: () => { return "hacked"}, toString: () => { return "hacked"} } })';
+        const evaluated = await isolatedEval(code);
+        expect(evaluated).toStrictEqual({ pid: "pid" });
+        expect(evaluated.__proto__).toStrictEqual({});
+        expect(evaluated.toString()).toBe("[object Object]");
+      }
+    );
+    test.concurrent("should not have access to globalThis", async function () {
+      const code = `
+      (function() { 
+          let ret = globalThis;
+          ret.__proto__.polluted = "ret.__proto__.polluted";
+      })()
+      `;
+      await expect(() => isolatedEval(code)).rejects.toThrow();
+      await expect(globalThis["polluted"]).toBe(undefined);
+    });
 
-  test.concurrent("should not have access to __proto__", async function () {
-    const code = `
-    (function() { 
-        __proto__.polluted = "ret.polluted"
-        return (new Object()).__proto__;
-    })()
-    `;
-    await expect(() => isolatedEval(code)).rejects.toThrow();
+    test.concurrent("should not have access to __proto__", async function () {
+      const code = `
+      (function() { 
+          __proto__.polluted = "ret.polluted"
+          return (new Object()).__proto__;
+      })()
+      `;
+      await expect(() => isolatedEval(code)).rejects.toThrow();
+    });
+
+    test.concurrent("should not be able pollute prototype in global this", async function () {
+      const code = `
+      function getRootPrototype(obj) {        
+        while (obj.__proto__) {
+            obj = obj.__proto__;
+        }
+        return obj;    
+      }
+      function stack(ref, cb) {
+          let stack = new Error().stack;
+          stack.match(/checkReferenceRecursive/g);        
+      }
+      try {            
+          global.temp0 = RegExp.prototype.__defineGetter__('global', () => {    
+              getRootPrototype(this);                
+              stack(this);        
+              return true;
+          }), function functionInvocationAnalysis(r) {        
+              stack(r);
+          }(temp0), global.temp0;
+          RegExp.prototype.exec = function (str) {        
+              stack(arguments);        
+          };    
+      } catch (e) {    
+          getRootPrototype(e).polluted = "success";   
+      }
+      `;
+      await isolatedEval(code);
+      await expect(globalThis.polluted).toBe(undefined);
+    });
+
+    test.concurrent("should not have access to __proto__", async function () {
+      const code = `
+      function foo(ref) {
+        new Error().stack;    
+      }
+      let obj = {};
+      Object.defineProperty(Object.prototype, 0, {
+          set: function () {                        
+              foo(this);
+              try {      
+                  obj[0] = 0;
+              } catch (e) {
+                  e.__proto__.__proto__.__proto__.polluted = 'success';            
+              }
+          }
+      })
+      `;
+      await isolatedEval(code);
+      await expect(globalThis.polluted).toBe(undefined);
+    });
+
+    test.concurrent(
+      "should not be able to pollute prototype of global this",
+      async function () {
+        const code = `
+      let res = eval("import('./foo.js');");
+      res.__proto__.__proto__.polluted = res.__proto__.__proto__.toString.constructor("return this")().process.mainModule.require("child_process").execSync("touch HACKED").toString();
+      `;
+        await expect(() => isolatedEval(code)).rejects.toThrow();
+        await expect(globalThis.polluted).toBe(undefined);
+      }
+    );
+
+    test.concurrent(
+      "should not be able to pollute prototype of context object",
+      async function () {
+        const code = `
+        obj.__proto__.polluted = "polluted";
+        obj
+      `;
+        const context = { obj: { hello: "world!" } };
+        await isolatedEval(code, context);
+        await expect(context.obj["polluted"]).toBe(undefined);
+      }
+    );
   });
 
   test.concurrent(

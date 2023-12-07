@@ -17,11 +17,7 @@ export async function isolatedEval(
   const isolatedContext = await isolate.createContext();
   code = `(${clearContext.toString()})(); ${code}`;
   if (context) {
-    await Promise.all(
-      Object.keys(context).map(function (key) {
-        return isolatedContext.global.set(key, context[key]);
-      })
-    );
+    await setContext(context, isolatedContext);
   }
   try {
     const res = await isolate.compileScript(code as string);
@@ -34,6 +30,21 @@ export async function isolatedEval(
     isolatedContext.release();
     isolate.dispose();
   }
+}
+
+async function setContext(context: Object, isolatedContext: vm.Context) {
+  await Promise.all(
+    Object.keys(context).map(function (key) {
+      let data;
+      if (typeof context[key] === 'object') {
+        const thing = new vm.ExternalCopy(context[key]).copyInto();
+        data = thing;
+      } else {
+        data = context[key];
+      }
+      return isolatedContext.global.set(key, data);
+    })
+  );
 }
 
 function clearContext() {
