@@ -50,10 +50,10 @@ async function setContext(context: Object, isolatedContext: vm.Context) {
 function clearContext() {
   Function = null;
   globalThis.__proto__ = null;
-  const keys = Object.getOwnPropertyNames(this).concat(["constructor"]);
-  keys.forEach((key) => {
-    const item = this[key];
-    if (!item || typeof item.constructor !== "function") return;
-    this[key].constructor = null;
-  });
+  // const keys = Object.getOwnPropertyNames(this).concat(["constructor"]);
+  // keys.forEach((key) => {
+  //   const item = this[key];
+  //   if (!item || typeof item.constructor !== "function") return;
+  //   this[key].constructor = null;
+  // });
 }

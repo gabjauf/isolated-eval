@@ -26,6 +26,13 @@ describe("isolatedEval", () => {
     expect(evaluated).toBe(code);
   });
 
+  test.concurrent("should work with nested objects context", async function () {
+    const code = "obj";
+    const context = { obj: { hello: { world: '!'}}}
+    const evaluated = await isolatedEval(code, context);
+    expect(evaluated).toStrictEqual(context.obj);
+  });
+
   test.concurrent(
     "should have access to standard JavaScript library",
     async () => {
@@ -260,4 +267,10 @@ describe("isolatedEval", () => {
       expect(() => isolatedEval(code, {}, { timeout: 1 })).rejects.toThrow();
     }
   );
+
+  test.concurrent("should not be able to inject constructor", async function () {
+    const code = "obj.constructor = () => {}; obj";
+    const context = { obj: { hello: { world: '!'}}}
+    await expect(() => isolatedEval(code, context)).rejects.toThrow();
+  });
 });
