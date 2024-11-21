@@ -11,11 +11,11 @@
   "author": "Gabriel Jauffret",
   "license": "MIT",
   "dependencies": {
-    "isolated-vm": "^4.6.0",
-    "vitest": "^0.34.6"
+    "isolated-vm": "^5.0.1"
   },
   "devDependencies": {
     "tsx": "^4.1.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
   }
 }
