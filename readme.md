@@ -6,7 +6,7 @@ This module attempts to mimic the eval function with the following objectives:
 - [x] Isolate the execution
 - [x] Timeout long running scripts
 - [x] Resolve promises (only in async)
-- [x] Restrain the context (no access to globalThis, process)
+- [x] Restrain the context (no access to globalThis, process, require)
 
 These should make the execution much more secure with arbitrary input scripts coming from the user.
 
